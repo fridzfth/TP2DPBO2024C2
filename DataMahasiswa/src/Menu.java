@@ -37,9 +37,6 @@ public class Menu extends JFrame {
     // Indeks baris yang dipilih pada tabel
     private int selectedIndex = -1;
 
-    // ArrayList untuk menyimpan data Mahasiswa
-    private ArrayList<Mahasiswa> listMahasiswa;
-
     private Database database;
 
     // Komponen GUI
@@ -176,7 +173,7 @@ public class Menu extends JFrame {
 
     // Method untuk mengatur model tabel
     public final DefaultTableModel setTable() {
-        Object[] column = {"No", "NIM", "Nama", "Jenis Kelamin", "Jurusan"};
+        Object[] column = {"Id", "NIM", "Nama", "Jenis Kelamin", "Jurusan"};
         DefaultTableModel temp = new DefaultTableModel(null, column);
         try {
             // isi tabel dengan listMahasiswa
@@ -184,8 +181,7 @@ public class Menu extends JFrame {
             int i = 1;
             while (resultSet.next()){
                 Object[] row = new Object[5];
-                row[0] = i;
-                i++;
+                row[0] = resultSet.getString("id");
                 row[1] = resultSet.getString("NIM");
                 row[2] = resultSet.getString("Nama");
                 row[3] = resultSet.getString("JenisKelamin");
@@ -256,14 +252,10 @@ public class Menu extends JFrame {
 
 
     // Method untuk memperbarui data
-    // Method untuk memperbarui data berdasarkan ID
+// Method untuk memperbarui data berdasarkan ID
     public void updateData() {
         // Ambil ID dari baris yang dipilih di tabel
         int selectedRowIndex = mahasiswaTable.getSelectedRow();
-        if (selectedRowIndex == -1) {
-            JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin diupdate.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
         String id = mahasiswaTable.getModel().getValueAt(selectedRowIndex, 0).toString(); // Di sini diasumsikan ID berada pada kolom pertama (indeks 0)
 
         // Ambil data dari textfield, radio, dan combobox
@@ -276,7 +268,7 @@ public class Menu extends JFrame {
         String queryCheckNIM = "SELECT COUNT(*) FROM mahasiswa WHERE NIM='" + nim + "' AND id != '" + id + "'";
         int count = database.getCount(queryCheckNIM);
         if (count > 0) {
-            JOptionPane.showMessageDialog(null, "NIM telah digunakan untuk mahasiswa lain.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "NIM '"+nim+"' telah digunakan untuk mahasiswa lain.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -285,7 +277,7 @@ public class Menu extends JFrame {
         database.crudQuery(sql);
 
         // Update tabel
-        mahasiswaTable.setModel(setTable());
+        mahasiswaTable.setModel(setTable()); // Perbarui tabel dengan data yang baru
 
         // Bersihkan form
         clearForm();
@@ -294,6 +286,7 @@ public class Menu extends JFrame {
         System.out.println("Update Berhasil");
         JOptionPane.showMessageDialog(null, "Data Berhasil Diubah!");
     }
+
 
 
 
